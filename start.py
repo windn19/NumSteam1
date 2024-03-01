@@ -1,13 +1,17 @@
 from detect import load_model, run
 try:
-    from settings import yolo_weights
+    from settings import yolo_weights, source
 except Exception as e:
     print('Нет файла настроек с весами для yolo')
     yolo_weights = ''
+    source = ''
 
 
-def get_result(path):
+if __name__ == '__main__':
     model = load_model(weights=yolo_weights)
-    return run(model=model, source=path, save_crop=True, nosave=True)
+    try:
+        run(model=model, source=source, save_crop=True, nosave=True)
+    except Exception as e:
+        print(e.__class__.__name__)
 
 

@@ -59,8 +59,13 @@ from ocr import prepare_image
 from prepare import prepare1
 
 
+def load_model(weights=ROOT / 'yolov5s.pt', data=ROOT / 'data/coco128.yaml', device=''):
+    device = select_device(device)
+    return DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
+
+
 @smart_inference_mode()
-def run(
+def run(model,
         weights=ROOT / 'yolov5s.pt',  # model path or triton URL
         source=ROOT / 'data/images',  # file/dir/URL/glob/screen/0(webcam)
         data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
@@ -92,11 +97,10 @@ def run(
         boxes=[],
         lines=[],
         direct='down',
-        time=10
-):
+        ):
     source = str(source)
     log_my = logging.getLogger('file1')
-    log_my.info(f'Параметры записи: {boxes}, {lines}, {cam_name},\n направление движения: {direct} время - {time}')
+    log_my.info(f'Параметры записи: {boxes}, {lines}, {cam_name},\n направление движения: {direct}')
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
@@ -110,8 +114,6 @@ def run(
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
     # Load model
-    device = select_device(device)
-    model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
     stride, names, pt = model.stride, model.names, model.pt
     imgsz = check_img_size(imgsz, s=stride)  # check image size
 
@@ -289,7 +291,7 @@ def run(
         log_my.info('Конец файла - обработка')
         text = prepare1(res)
         if text is not None and images:
-            add_row(res, text, *images, cam_name, time)
+            add_row(res, text, *images, cam_name)
         # if res_old and images:
         #     add_row(res_old, text_old, *images, cam_name)
     if save_txt or save_img:
