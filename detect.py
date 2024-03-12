@@ -39,7 +39,7 @@ from pathlib import Path
 
 import cv2
 import torch
-
+#
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -59,9 +59,11 @@ from ocr import prepare_image
 from prepare import prepare1
 
 
+# функция загрузки модели
 def load_model(weights=ROOT / 'yolov5s.pt', data=ROOT / 'data/coco128.yaml', device=''):
     device = select_device(device)
     return DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
+
 
 
 @smart_inference_mode()
@@ -342,6 +344,7 @@ def parse_opt():
 
 
 def main(opt):
+    """ """
     check_requirements(exclude=('tensorboard', 'thop'))
     run(**vars(opt))
 
