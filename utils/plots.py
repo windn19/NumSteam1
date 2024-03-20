@@ -565,14 +565,9 @@ def save_one_box(event, xyxy, im, file=Path('im.jpg'), gain=1.02, pad=10, square
         region = [0, im.shape[0]]
     line = crop_coor[1] if abs(xyxy[0, 1]-crop_coor[1]) < abs(xyxy[0, 3]-crop_coor[3]) else crop_coor[3]
     crop, y, x = None, line, crop_coor[0]
-    # print(crop_coor[0] < int(xyxy[0, 0]), crop_coor[1] < int(xyxy[0, 1]),
-    #        crop_coor[2] > int(xyxy[0, 2]), crop_coor[3] > int(xyxy[0, 3]), event)
     if crop_coor[0] < int(xyxy[0, 0]) and crop_coor[1] < int(xyxy[0, 1]) \
             and crop_coor[2] > int(xyxy[0, 2]) and crop_coor[3] > int(xyxy[0, 3]):
-        # log.info(f'Параметры записи: {crop_coor}, {region}, {cam_name} {y}')
         log.info([xyxy, event])
-        # cv2.rectangle(im, (crop_coor[0], crop_coor[1]), (crop_coor[2], crop_coor[3]), (0, 255, 0))
-        # cv2.rectangle(im, (crop_coor[0], region[0]), (crop_coor[2], region[1]), (255, 0, 0))
         crop = im[int(xyxy[0, 1]):int(xyxy[0, 3]), int(xyxy[0, 0]):int(xyxy[0, 2]), ::(1 if BGR else -1)]
         y, x = int(xyxy[0, 3]), int(xyxy[0, 2])
         if event and region[0] < int(xyxy[0, 3]) < region[1]:

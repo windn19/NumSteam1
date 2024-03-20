@@ -39,6 +39,7 @@ from pathlib import Path
 
 import cv2
 import torch
+
 #
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -63,7 +64,6 @@ from prepare import prepare1
 def load_model(weights=ROOT / 'yolov5s.pt', data=ROOT / 'data/coco128.yaml', device=''):
     device = select_device(device)
     return DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
-
 
 
 @smart_inference_mode()
@@ -110,7 +110,7 @@ def run(model,
     screenshot = source.lower().startswith('screen')
     if is_url and is_file:
         source = check_file(source)  # download
-    
+
     # Directories
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
@@ -216,16 +216,10 @@ def run(model,
                                 else:
                                     direct -= 1
 
-                            # if abs(x1 - x) > 5:
-                            #     if abs(x1 - x) >= 400 or x1 > x:
-                            #         direct = direct + 1
-                            #     else:
-                            #         direct -= 1
-
-                            if images and res and (n1 > 50 or abs(y-y1) > 400):
+                            if images and res and (n1 > 50 or abs(y - y1) > 400):
                                 text = prepare1(res)
                                 log_my.info(f'Запись {cam_name}: {text} {direct}')
-                                if text is not None and direct > 0:
+                                if text is not None and direct > 1:
                                     add_row(res, text, *images, cam_name)
                                 else:
                                     log_my.info(f'Неверное направление {cam_name} - {text}')
@@ -271,12 +265,11 @@ def run(model,
             if n1 > 50 and res:
                 if not images:
                     log_my.info(f'Обнуление res - нет изображения {res}')
-                #     res = []
                 else:
                     text = prepare1(res)
                     log_my.info(f'Запись: {text} {direct}')
-                    if text is not None and direct > 0:
-                        add_row(res, text, *images, cam_name, time)
+                    if text is not None and direct > 1:
+                        add_row(res, text, *images, cam_name)
                 images, crop = None, None
                 res, n1, flag = [], 0, True
                 y1, x1, direct = boxes[1] + 50, boxes[0], 0

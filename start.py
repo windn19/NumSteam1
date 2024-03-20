@@ -7,11 +7,10 @@ except Exception as e:
     source = ''
 
 
-if __name__ == '__main__':
-    model = load_model(weights=yolo_weights)
-    try:
-        run(model=model, source=source, save_crop=True, nosave=True)
-    except Exception as e:
-        print(e.__class__.__name__)
+model = load_model(weights=yolo_weights)
+try:
+    run(model=model, source=source, save_crop=True, nosave=True)
+except Exception as e:
+    print(e.__class__.__name__)
 
 

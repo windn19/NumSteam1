@@ -1,19 +1,12 @@
 import datetime
 import json
-import io
-import logging
 import logging.config
 import sqlite3
-from os.path import exists, join
+from os.path import join
 from pathlib import Path
-import time
 
-import numpy as np
-from PIL import Image
-from matplotlib import pyplot as plt, image
-
-from prepare import prepare1
 from models_pe import Numbers, db
+from prepare import prepare1
 
 # from detect import run
 BASEDIR = Path(__file__).parents[1]
