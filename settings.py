@@ -1,3 +1,3 @@
-yolo_weights = 'best5R.pt'
-ocr_weights = 'mod.h5'
-source = ''
+yolo_weights = 'Путь до весов модели YoloV5'
+ocr_weights = 'Путь до весов модели распознавания номеров'
+source = 'Входящий видеопоток (ссылка/папка с файлами)'
