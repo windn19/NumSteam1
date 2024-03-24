@@ -225,7 +225,7 @@ def run(model,
                                     log_my.info(f'Неверное направление {cam_name} - {text}')
                                 images, crop = None, None
                                 res, n1, flag = [], 0, True
-                                y, x, direct = boxes[1] + 50, boxes[0], 0
+                                y, x, direct = boxes[1], boxes[0], 0
                             if crop is not None:
                                 res = prepare_image(crop, res)
                                 n1 = 0
@@ -272,7 +272,7 @@ def run(model,
                         add_row(res, text, *images, cam_name)
                 images, crop = None, None
                 res, n1, flag = [], 0, True
-                y1, x1, direct = boxes[1] + 50, boxes[0], 0
+                y1, x1, direct = boxes[1], boxes[0], 0
 
             n1 += 1
     except Exception:
