@@ -559,7 +559,7 @@ def save_one_box(event, xyxy, im, file=Path('im.jpg'), gain=1.02, pad=10, square
     b[:, 2:] = b[:, 2:] * gain + pad  # box wh * gain + pad
     xyxy = xywh2xyxy(b).long()
     clip_boxes(xyxy, im.shape)
-    print(xyxy, im.shape)
+    log.info([xyxy, event])
     if not crop_coor:
         crop_coor = [0, 0, im.shape[1], im.shape[0]]
         region = [0, im.shape[0]]
@@ -567,7 +567,7 @@ def save_one_box(event, xyxy, im, file=Path('im.jpg'), gain=1.02, pad=10, square
     crop, y, x = None, line, crop_coor[0]
     if crop_coor[0] < int(xyxy[0, 0]) and crop_coor[1] < int(xyxy[0, 1]) \
             and crop_coor[2] > int(xyxy[0, 2]) and crop_coor[3] > int(xyxy[0, 3]):
-        log.info([xyxy, event])
+
         crop = im[int(xyxy[0, 1]):int(xyxy[0, 3]), int(xyxy[0, 0]):int(xyxy[0, 2]), ::(1 if BGR else -1)]
         y, x = int(xyxy[0, 3]), int(xyxy[0, 2])
         if event and region[0] < int(xyxy[0, 3]) < region[1]:
@@ -583,7 +583,7 @@ def save_one_box(event, xyxy, im, file=Path('im.jpg'), gain=1.02, pad=10, square
                 f_image = f'{date}_image.jpg'
                 log.info(f'Камера {cam_name}: Кадр сохранен под именем: {f_image}')
                 UPLOAD_DIR_IMAGE.mkdir(parents=True, exist_ok=True)
-                crop = (crop, (f'{cam_name}/images/{f_image}', f'{cam_name}/crops/{f_crop}'))
+                crop = (crop, (f'{cam_name}/images/{f_image}', f'{cam_name}/crops/{f_crop}'), im[..., ::-1])
                 Image.fromarray(im[..., ::-1]).save(UPLOAD_DIR_IMAGE / f_image, quality=95, subsampling=0)
             except Exception as e:
                 log.error(e.__class__.__name__, exc_info=False)

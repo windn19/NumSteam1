@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from peewee import PostgresqlDatabase, Model, DateTimeField, CharField, TextField
+from peewee import PostgresqlDatabase, Model, DateTimeField, CharField, TextField, SqliteDatabase
 
 from settings import postgre
 
 
-# db = SqliteDatabase('../base.db')
-db = PostgresqlDatabase(**postgre)
+db = SqliteDatabase('../base.db')
+# db = PostgresqlDatabase(**postgre)
 
 
 class Numbers(Model):

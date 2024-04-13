@@ -14,8 +14,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
-from model import build_model
+from model import build_model, build_direct_model
 from prepare import replace_char
+from settings import ocr_weights, direct_weights
 
 
 characters = [' ', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'H', 'I', 'K',
@@ -29,10 +30,12 @@ char_to_num = layers.StringLookup(
 num_to_char = layers.StringLookup(
     vocabulary=char_to_num.get_vocabulary(), mask_token=None, invert=True)
 model = build_model()
-model.load_weights('mod.h5')
+model.load_weights(ocr_weights)
 prediction_model = keras.models.Model(
     model.get_layer(name="image").input, model.get_layer(name="dense2").output
 )
+direct_model = build_direct_model()
+direct_model.load_weights(direct_weights)
 read = easyocr.Reader(['en'])
 log = logging.getLogger('file1')
 

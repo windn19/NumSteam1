@@ -56,7 +56,8 @@ from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
 from add import add_row
-from ocr import prepare_image
+from model import is_direct
+from ocr import prepare_image, direct_model
 from prepare import prepare1
 
 
@@ -103,6 +104,7 @@ def run(model,
     source = str(source)
     log_my = logging.getLogger('file1')
     log_my.info(f'Параметры записи: {boxes}, {lines}, {cam_name},\n направление движения: {direct}')
+    direct = 0 if direct == 'down' else 1
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
@@ -137,9 +139,9 @@ def run(model,
     res, n1, flag, crop = [], 0, True, None
     text_old, res_old, images, date_old = '', [], None, (datetime.datetime.now(), '')
     if boxes:
-        y1, n2, x1, direct = boxes[1] + 50, 0, boxes[0], 0
+        y1, n2 = boxes[1] + 50, 0
     else:
-        y1, n2, x1, direct = 0, 0, 0, 0
+        y1, n2 = 0, 0
     try:
         for path, im, im0s, vid_cap, s in dataset:
             with dt[0]:
@@ -203,33 +205,32 @@ def run(model,
                             crop, y, x = save_one_box(flag, xyxy, imc,
                                                       file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg',
                                                       BGR=True, crop_coor=boxes, region=lines, cam_name=cam_name)
+                            log_my.info(f'Тип изображения: {type(crop)} Низ по вертикали: {y}')
+                            log_my.info([bool(images), bool(res), n1 > 50, y - y1 < 0, abs(y1 - y), direct])
                             if isinstance(crop, tuple):
-                                crop, images = crop
+                                crop, images, orig = crop
                                 flag = False
-                            if crop is not None:
-                                log_my.info(f'Координата: {type(crop)} {y} {x}')
-                                log_my.info(direct)
-                                log_my.info([bool(images), bool(res), n1 > 50, y - y1 < 0, abs(y1 - y), direct])
-                            if 5 < abs(y1 - y):
-                                if y > y1:
-                                    direct += 1
-                                else:
-                                    direct -= 1
-
+                            # if crop is not None:
+                            #     if 5 < abs(y1 - y):
+                            #         if y > y1:
+                            #             direct += 1
+                            #         else:
+                            #             direct -= 1
                             if images and res and (n1 > 50 or abs(y - y1) > 400):
                                 text = prepare1(res)
                                 log_my.info(f'Запись {cam_name}: {text} {direct}')
-                                if text is not None and direct > 1:
+                                log_my.info(is_direct(direct_model, orig, direct))
+                                if text is not None:
                                     add_row(res, text, *images, cam_name)
                                 else:
                                     log_my.info(f'Неверное направление {cam_name} - {text}')
                                 images, crop = None, None
                                 res, n1, flag = [], 0, True
-                                y, x, direct = boxes[1], boxes[0], 0
+                                y, x = (boxes[1], boxes[0]) if boxes else (0, 0)
                             if crop is not None:
                                 res = prepare_image(crop, res)
                                 n1 = 0
-                            y1, x1 = y, x
+                                y1, x1 = y, x
 
                 # Stream results !!!!
                 im0 = annotator.result()
@@ -266,13 +267,14 @@ def run(model,
                 if not images:
                     log_my.info(f'Обнуление res - нет изображения {res}')
                 else:
+                    log_my.info(is_direct(direct_model, orig, direct))
                     text = prepare1(res)
                     log_my.info(f'Запись: {text} {direct}')
                     if text is not None and direct > 1:
                         add_row(res, text, *images, cam_name)
                 images, crop = None, None
                 res, n1, flag = [], 0, True
-                y1, x1, direct = boxes[1], boxes[0], 0
+                y1, x1 = (boxes[1], boxes[0]) if boxes else (0, 0)
 
             n1 += 1
     except Exception:

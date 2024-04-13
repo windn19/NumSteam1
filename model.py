@@ -20,7 +20,7 @@ from tensorflow.keras.utils import plot_model
 
 
 def convt2(shape=(112, 112, 3)):
-    net = EfficientNetV2B3(include_top=False, input_shape=(50, 200, 3), pooling='avg')
+    net = EfficientNetV2B3(include_top=False, input_shape=shape, pooling='avg')
     net.traniable = False
     return net
 
@@ -93,6 +93,26 @@ def build_model():
     # Compile the model and return
     model.compile(optimizer=opt)
     return model
+
+
+def build_direct_model():
+    inp = layers.Input(shape=(224, 224, 3))
+    x = convt2(shape=(224, 224, 3))(inp)
+    x = layers.Dense(1000, activation='relu')(x)
+    x = layers.Dropout(0.1)(x)
+    out = layers.Dense(1, activation='sigmoid')(x)
+
+    cl = Model(inp, out)
+    cl.compile(optimizer=keras.optimizers.legacy.Adam())
+    return cl
+
+
+def is_direct(model, image, direct):
+    image = cv2.resize(image, (224, 224))
+    image = np.expand_dims(image, axis=0)
+    pred = model.predict(image)[0]
+    pred = pred.astype(np.int8)
+    return pred[0] == direct
 
 
 characters = [' ', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'H', 'I',
