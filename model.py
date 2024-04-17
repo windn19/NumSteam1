@@ -1,3 +1,6 @@
+import logging
+import logging.config
+
 import os
 import pandas as pd
 import numpy as np
@@ -17,6 +20,8 @@ from tensorflow.keras.layers import Input, Flatten, TimeDistributed, BatchNormal
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications.efficientnet_v2 import EfficientNetV2B3
 from tensorflow.keras.utils import plot_model
+
+log = logging.getLogger('file1')
 
 
 def convt2(shape=(112, 112, 3)):
@@ -109,9 +114,11 @@ def build_direct_model():
 
 def is_direct(model, image, direct):
     image = cv2.resize(image, (224, 224))
+    image = image / 255
     image = np.expand_dims(image, axis=0)
     pred = model.predict(image)[0]
-    pred = pred.astype(np.int8)
+    log.info(f'Предсказание модели: {pred}')
+    pred = pred.round().astype(np.int8)
     return pred[0] == direct
 
 

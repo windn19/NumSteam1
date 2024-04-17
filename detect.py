@@ -220,7 +220,7 @@ def run(model,
                                 text = prepare1(res)
                                 log_my.info(f'Запись {cam_name}: {text} {direct}')
                                 log_my.info(is_direct(direct_model, orig, direct))
-                                if text is not None:
+                                if text is not None and is_direct(direct_model, orig, direct):
                                     add_row(res, text, *images, cam_name)
                                 else:
                                     log_my.info(f'Неверное направление {cam_name} - {text}')
@@ -269,8 +269,8 @@ def run(model,
                 else:
                     log_my.info(is_direct(direct_model, orig, direct))
                     text = prepare1(res)
-                    log_my.info(f'Запись: {text} {direct}')
-                    if text is not None and direct > 1:
+                    log_my.info(f'Запись: {text}')
+                    if text is not None and is_direct(direct_model, orig, direct):
                         add_row(res, text, *images, cam_name)
                 images, crop = None, None
                 res, n1, flag = [], 0, True
